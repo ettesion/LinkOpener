@@ -274,6 +274,30 @@
 
 			return [NSURL URLWithString:[NSString stringWithFormat:@"yelp5.3://%@", url.path]];
 		}
+	} else if (([url.host isEqualToString:@"youtube.com"] || [url.host isEqualToString:@"www.youtube.com"] || [url.host isEqualToString:@"m.youtube.com"]) && [url.path isEqualToString:@"/watch"]) {
+		if (![_preferences boolForKey:@"YouTube" default:YES]) {
+			return nil;
+		}
+
+		NSArray *params = [url.query componentsSeparatedByString:@"&"];
+
+		for (NSString *i in params) {
+			if ([i rangeOfString:@"v="].location == 0) {
+				return [NSURL URLWithString:[@"vnd.youtube://" stringByAppendingString:[i stringByReplacingOccurrencesOfString:@"v=" withString:@""]]];
+			}
+		}
+	} else if ([url.host isEqualToString:@"youtu.be"] && url.pathComponents.count > 1) {
+		if (![_preferences boolForKey:@"YouTube" default:YES]) {
+			return nil;
+		}
+
+		return [NSURL URLWithString:[@"vnd.youtube://" stringByAppendingString:[url.pathComponents objectAtIndex:1]]];
+	} else if ([url.scheme isEqualToString:@"youtube"]) {
+		if (![_preferences boolForKey:@"YouTube" default:YES]) {
+			return nil;
+		}
+
+		return [NSURL URLWithString:[@"vnd." stringByAppendingString:url.absoluteString]];
 	}
 
 	return nil;
